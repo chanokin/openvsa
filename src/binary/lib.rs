@@ -45,4 +45,39 @@ pub mod binary {
 
         CsVec::new(size, indices, data)
     }
+
+
+    /// Bundles multiple sparse binary vectors into a single vector using consensus sum.
+    /// # Arguments
+    /// * `vectors` - A slice of sparse binary vectors represented as `CsVec<i8>`.
+    /// # Returns
+    /// A sparse binary vector representing the bundled result.
+    pub fn bundle(vectors: &[CsVec<i8>]) -> CsVec<i8> {
+        consensus_sum(vectors)
+    }
+
+
+    /// Binds two sparse binary vectors using element-wise XOR operation.
+    /// # Arguments
+    /// * `vec1` - The first sparse binary vector.
+    /// * `vec2` - The second sparse binary vector.
+    /// # Returns
+    /// A sparse binary vector representing the bound result.
+    pub fn bind(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
+        assert_eq!(vec1.dim(), vec2.dim(), "Vectors must be of the same dimension for binding.");
+
+        let size = vec1.dim();
+        let mut result = vec1 + vec2;
+        let indices: Vec<usize> = result.iter()
+            .enumerate()
+            .filter_map(|(i, &v)| if v == 1 { Some(i) } else { None })
+            .collect();
+
+        let data: Vec<i8> = indices.iter().map(|&i| 1i8).collect();
+
+        CsVec::new(size, indices, data)
+    }
+
+
+
 }
