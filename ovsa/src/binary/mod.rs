@@ -59,8 +59,13 @@ pub mod binary {
         let mut result_data: Vec<i8> = vec![0i8; size];
 
         for vec in vectors {
-            for (index, &value) in vec.iter() {
-                result_data[index] += value * 2 - 1;
+            let active_indices = vec.indices();
+            for index in 0..size {
+                if active_indices.contains(&index) {
+                    result_data[index] += 1;
+                } else {
+                    result_data[index] -= 1;
+                }
             }
         }
 
@@ -93,7 +98,7 @@ pub mod binary {
     }
 
     /// Performs a cyclic shift on a sparse binary vector.
-    /// Typically used for implementing permutation operations, or binding/unbinding via shifting (e.g. left/right, respectively).
+    /// Typically used for implementing permutation operations, or binding/unbinding via shifting (e.g. right/left, respectively).
     /// # Arguments
     /// * `vec` - The sparse binary vector to be shifted.
     /// * `shift_by` - The number of positions to shift. Positive values shift to the right, negative values shift to the left.
