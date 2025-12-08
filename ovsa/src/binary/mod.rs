@@ -43,7 +43,7 @@ pub mod binary {
     pub fn hamming_distance(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> usize {
         assert_eq!(vec1.dim(), vec2.dim(), "Vectors must be of the same dimension to compute Hamming distance.");
 
-        let bound_vec = bind(vec1, vec2);
+        let bound_vec = xor(vec1, vec2);
         bound_vec.nnz()
     }
 
@@ -72,24 +72,13 @@ pub mod binary {
         from_indices(size, &indices)
     }
 
-
-    /// Bundles multiple sparse binary vectors into a single vector using consensus sum.
-    /// # Arguments
-    /// * `vectors` - A slice of sparse binary vectors represented as `CsVec<i8>`.
-    /// # Returns
-    /// A sparse binary vector representing the bundled result.
-    pub fn bundle(vectors: &[CsVec<i8>]) -> CsVec<i8> {
-        consensus_sum(vectors)
-    }
-
-
-    /// Binds two sparse binary vectors using element-wise XOR operation.
+    /// Computes the element-wise XOR of two sparse binary vectors.
     /// # Arguments
     /// * `vec1` - The first sparse binary vector.
     /// * `vec2` - The second sparse binary vector.
     /// # Returns
-    /// A sparse binary vector representing the bound result.
-    pub fn bind(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
+    /// A sparse binary vector representing the XOR result.
+    pub fn xor(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
         assert_eq!(vec1.dim(), vec2.dim(), "Vectors must be of the same dimension for binding.");
 
         let size: usize = vec1.dim();
@@ -103,10 +92,23 @@ pub mod binary {
         from_indices(size, &indices)
     }
 
+    pub fn cyclic_shift(vec: &CsVec<i8>, shift_by: isize) -> CsVec<i8> {
+        let size = vec.dim() as isize;
+        let mut new_indices: Vec<usize> = Vec::new();
 
-    pub fn unbind(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
-        // In binary vectors, binding and unbinding are the same operation (XOR)
-        bind(vec1, vec2)
+        for (index, _) in vec.iter() {
+            let mut new_index = index as isize + shift_by;
+            if new_index < 0 {
+                new_index += size;
+            } else if new_index >= size {
+                new_index -= size;
+            }
+
+
+            new_indices.push(new_index as usize);
+        }
+
+        from_indices(vec.dim(), &new_indices)
     }
 
 
