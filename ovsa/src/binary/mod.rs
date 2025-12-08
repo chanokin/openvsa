@@ -13,13 +13,25 @@ pub mod binary {
     /// A sparse binary vector represented as `CsVec<i8>`.
     pub fn sparse_random(dimension: usize, n_active: usize) -> CsVec<i8> {
 
-        let mut rng = rng();
-        let indices = sample(&mut rng, dimension, n_active).into_vec();
-        let data = vec![1i8; n_active];
+        let mut rng  = rng();
+        let indices: Vec<usize> = sample(&mut rng, dimension, n_active).into_vec();
+        let data: Vec<i8> = vec![1i8; n_active];
 
         CsVec::new(dimension, indices, data)
     }
 
+    /// Creates a sparse binary vector from given indices of active (1) entries.
+    /// # Arguments
+    /// * `dimension` - The size of the vector.
+    /// * `indices` - A slice of indices where the entries are active (1).
+    /// # Returns
+    /// A sparse binary vector represented as `CsVec<i8>`.
+    pub fn from_indices(dimension: usize, indices: &[usize]) -> CsVec<i8> {
+        let n_active = indices.len();
+        let data: Vec<i8> = vec![1i8; n_active];
+
+        CsVec::new(dimension, indices.to_vec(), data)
+    }
 
     /// Computes the consensus sum of a slice of sparse binary vectors.
     /// The consensus sum is determined by taking the majority value at each index across all vectors.
@@ -28,8 +40,9 @@ pub mod binary {
     /// # Returns
     /// A sparse binary vector representing the consensus sum.
     pub fn consensus_sum(vectors: &[CsVec<i8>]) -> CsVec<i8> {
-        let size = vectors[0].dim();
-        let mut result_data = vec![0i8; size];
+        // todo: optimize this to avoid using a full vector
+        let size: usize = vectors[0].dim();
+        let mut result_data: Vec<i8> = vec![0i8; size];
 
         for vec in vectors {
             for (index, &value) in vec.iter() {
@@ -42,9 +55,7 @@ pub mod binary {
             .filter_map(|(index, &value)| if value > 0 { Some(index) } else { None })
             .collect();
 
-        let data: Vec<i8> = indices.iter().map(|&i| result_data[i]).collect();
-
-        CsVec::new(size, indices, data)
+        from_indices(size, &indices)
     }
 
 
@@ -67,16 +78,15 @@ pub mod binary {
     pub fn bind(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
         assert_eq!(vec1.dim(), vec2.dim(), "Vectors must be of the same dimension for binding.");
 
-        let size = vec1.dim();
-        let mut result = vec1 + vec2;
+        let size: usize = vec1.dim();
+        // to simulate an XOR operation, we add the two vectors and keep only the entries where the sum is 1
+        let result: CsVec<i8> = vec1 + vec2;
         let indices: Vec<usize> = result.iter()
             // XOR operation: 1 + 1 = 0, so we keep only entries with value 1
             .filter_map(|(index, &value)| if value == 1 { Some(index) } else { None })
             .collect();
 
-        let data: Vec<i8> = indices.iter().map(|&i| 1i8).collect();
-
-        CsVec::new(size, indices, data)
+        from_indices(size, &indices)
     }
 
 
