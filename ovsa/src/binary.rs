@@ -32,7 +32,7 @@ pub fn from_indices(dimension: usize, indices: &[usize]) -> CsVec<i8> {
     let n_active = indices.len();
     let data: Vec<i8> = vec![1i8; n_active];
 
-    CsVec::new(dimension, indices.to_vec(), data)
+    CsVec::new_from_unsorted(dimension, indices.to_vec(), data).unwrap()
 }
 
 /// Computes the Hamming distance between two sparse binary vectors.
@@ -58,7 +58,7 @@ pub fn hamming_distance(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> usize {
 pub fn consensus_sum(vectors: &[CsVec<i8>]) -> CsVec<i8> {
     // todo: optimize this to avoid using a full vector
     let size: usize = vectors[0].dim();
-    let mut result_data: Vec<i8> = vec![0i8; size];
+    let mut result_data: Vec<i16> = vec![0i16; size];
 
     for vec in vectors {
         let active_indices = vec.indices();
@@ -74,7 +74,7 @@ pub fn consensus_sum(vectors: &[CsVec<i8>]) -> CsVec<i8> {
     let mut rng  = rng();
     let uniform = Uniform::new(0.0, 1.0).unwrap();
 
-    fn set_active(value: i8, rng: &mut impl rand::Rng, uniform: &Uniform<f64>) -> bool {
+    fn set_active(value: i16, rng: &mut impl rand::Rng, uniform: &Uniform<f64>) -> bool {
         if value > 0 {
             true
         } else if value < 0 {
