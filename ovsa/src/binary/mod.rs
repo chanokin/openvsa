@@ -5,6 +5,7 @@ use rand::seq::index::sample;
 use rand::distr::Uniform;
 use rand::rng;
 
+
 /// Generates a sparse random binary vector of given size with a specified number of active (1) entries.
 /// This could probably be optimized to use bit fields instead of u8 vectors.
 /// # Arguments
@@ -22,6 +23,7 @@ pub fn sparse_random(dimension: usize, n_active: usize) -> CsVec<i8> {
     CsVec::new(dimension, indices, data)
 }
 
+
 /// Creates a sparse binary vector from given indices of active (1) entries.
 /// # Arguments
 /// * `dimension` - The size of the vector.
@@ -34,6 +36,7 @@ pub fn from_indices(dimension: usize, indices: &[usize]) -> CsVec<i8> {
 
     CsVec::new_from_unsorted(dimension, indices.to_vec(), data).unwrap()
 }
+
 
 /// Computes the Hamming distance between two sparse binary vectors.
 /// The Hamming distance is defined as the number of positions at which the corresponding entries are different.
@@ -48,6 +51,7 @@ pub fn hamming_distance(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> usize {
     let bound_vec = xor(vec1, vec2);
     bound_vec.nnz()
 }
+
 
 /// Computes the consensus sum of a slice of sparse binary vectors.
 /// The consensus sum is determined by taking the majority value at each index across all vectors.
@@ -94,6 +98,7 @@ pub fn consensus_sum(vectors: &[CsVec<i8>]) -> CsVec<i8> {
     from_indices(size, &indices)
 }
 
+
 /// Computes the element-wise XOR of two sparse binary vectors.
 /// # Arguments
 /// * `vec1` - The first sparse binary vector.
@@ -113,6 +118,7 @@ pub fn xor(vec1: &CsVec<i8>, vec2: &CsVec<i8>) -> CsVec<i8> {
 
     from_indices(size, &indices)
 }
+
 
 /// Performs a cyclic shift on a sparse binary vector.
 /// Typically used for implementing permutation operations, or binding/unbinding via shifting (e.g. right/left, respectively).
