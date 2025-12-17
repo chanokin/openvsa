@@ -126,14 +126,7 @@ pub fn cyclic_shift(vec: &CsVec<i8>, shift_by: isize) -> CsVec<i8> {
     let mut new_indices: Vec<usize> = Vec::new();
 
     for (index, _) in vec.iter() {
-        let mut new_index = index as isize + shift_by;
-        if new_index < 0 {
-            new_index += size;
-        } else if new_index >= size {
-            new_index -= size;
-        }
-
-
+        let new_index = (index as isize + shift_by).rem_euclid(size);
         new_indices.push(new_index as usize);
     }
 
