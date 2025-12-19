@@ -112,7 +112,7 @@ pub fn consensus_sum(vectors: &[CsVec<i8>]) -> Result<CsVec<i8>, OVSAError> {
         }
     }
 
-    let mut indices: Vec<usize> = result_data.iter()
+    let indices: Vec<usize> = result_data.iter()
         .enumerate()
         .filter_map(|(index, &value)| if set_active(value, &mut rng, &uniform) { Some(index) } else { None })
         .collect();
